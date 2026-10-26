@@ -14,9 +14,8 @@ body{margin:0;min-height:100vh;color:var(--ink);font:16px/1.5 system-ui,-apple-s
 .card.head{border-radius:0 0 12px 12px;border-top:0}
 h1{font:700 clamp(22px,5vw,30px)/1.2 Georgia,serif;margin:0 0 8px}
 .mute{color:var(--mute);font-size:14px}
-.tabs{display:flex;gap:8px;margin:12px 0}
-.tabs button,.btn{font:600 14px system-ui,sans-serif;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 16px;border-radius:999px;cursor:pointer}
-.tabs button.on,.btn.p{background:var(--ac);color:#031417;border-color:var(--ac)}
+.btn{font:600 14px system-ui,sans-serif;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 16px;border-radius:999px;cursor:pointer}
+.btn.p{background:var(--ac);color:#031417;border-color:var(--ac)}
 .btn:disabled{opacity:.4}
 .prog{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin:4px 0 14px}
 .prog i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width .3s}
@@ -44,7 +43,7 @@ select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);ba
 <div class="top"></div>
 <div class="card head"><h1>Political Order in the Age of Artificial Intelligence</h1>
 <div class="mute">A research questionnaire on how AI reshapes political authority and the future of human governance. Responses are anonymous and take about five minutes.</div>
-<div class="tabs"><button id="t0" class="on" onclick="setView('form')">Questionnaire</button><button id="t1" onclick="setView('dash')">Graphs <span id="cnt"></span></button></div></div>
+</div>
 <div id="app"></div></div>
 <script>
 var DEM=[["age","Age group",["16–18","19–35","36–55","55 and above"]],["gender","Gender",["Male","Female","Transgender"]],["edu","Educational qualification",["Below 10th","10th–12th","Undergraduate","Postgraduate","PhD"]],["occ","Occupation",["Business","Employed","Retired","Unemployed","Student"]],["area","Area of residence",["Urban","Rural","Semi-urban"]]];
@@ -54,24 +53,17 @@ var Q=[["Artificial intelligence enhances transparency in governance.","L"],["Ho
 ["Do you believe AI will increase political polarisation?","Y"],["Rate your belief that AI is a catalyst for policy innovation.","R"],["How optimistic are you about AI’s role in crisis management?","R"],["Do you think AI will reduce political accountability?","Y"],["Rate your belief that AI will improve legislative efficiency.","R"],
 ["Do you think AI will foster new forms of political participation?","Y"],["AI enhances governance transparency.","L"],["Do you perceive AI bias in policy decisions?","Y"],["How likely is AI to streamline budgetary processes?","R"],["Do you believe AI increases political responsiveness?","Y"],
 ["Rate your confidence that AI will improve electoral integrity.","R"],["Do you think AI will facilitate evidence-based policymaking?","Y"],["Do you view AI as a threat to traditional media’s role in politics?","Y"],["How optimistic are you about AI reducing administrative burdens?","R"],["Do you believe AI will strengthen democratic institutions?","Y"]];
-var A={},page=0,view="form",DB=null,shared=[],demo=false,qi=0,gb="age",done=false;
+var A={},page=0,DB=null,done=false;
 function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"[]");localStorage.setItem(k,JSON.stringify(v))}catch(e){return v===undefined?[]:0}}
 var local=ls("aipo_resp");
-function col(t,i){return t=="L"?["#1b9aaa","#3fc1a5","#8a94a6","#f2a03d","#e5484d"][i]:t=="Y"?["#3fc1a5","#e5484d","#8a94a6"][i]:"hsl("+(340-i*16)+",72%,52%)"}
-function data(){return demo?genDemo():(DB?shared:local)}
-function src(){return demo?"Demo data":DB?"Shared responses":"This device only"}
-var _d=null;function genDemo(){if(_d)return _d;var s=212;function r(){s=(s*1664525+1013904223)>>>0;return s/4294967296}
-var W=Q.map(function(q){return SC[q[1]].map(function(){return .15+r()})});_d=[];
-for(var n=0;n<212;n++){var o={};DEM.forEach(function(d){o[d[0]]=d[2][Math.floor(r()*d[2].length)]});
-o.a=Q.map(function(q,i){var w=W[i],t=w.reduce(function(a,b){return a+b},0),x=r()*t,k=0;while(x>w[k]){x-=w[k];k++}return k}).join(",");_d.push(o)}return _d}
-function setView(v){view=v;document.getElementById("t0").className=v=="form"?"on":"";document.getElementById("t1").className=v=="dash"?"on":"";render()}
+function _c(t,i){return t=="L"?["#1b9aaa","#3fc1a5","#8a94a6","#f2a03d","#e5484d"][i]:t=="Y"?["#3fc1a5","#e5484d","#8a94a6"][i]:"hsl("+(340-i*16)+",72%,52%)"}
 function card(key,title,opts,type,num){var h='<div class="card" id="c_'+key+'"><div class="qt">'+(num?num+". ":"")+title+' <i>*</i></div>';
 if(type=="R"){h+='<div class="scale">';opts.forEach(function(o,i){h+='<button class="sb'+(A[key]===i?" on":"")+'" data-k="'+key+'" data-v="'+i+'">'+o+'</button>'});h+='</div><div class="ends"><span>1 = Very low</span><span>10 = Very high</span></div>'}
 else opts.forEach(function(o,i){h+='<button class="opt'+(A[key]===i?" on":"")+'" data-k="'+key+'" data-v="'+i+'"><span class="dot"></span>'+o+'</button>'});
 return h+'<div class="msg">This is a required question</div></div>'}
 function keys(){if(page==0)return DEM.map(function(d){return d[0]});var a=[];for(var i=(page-1)*5;i<page*5;i++)a.push("q"+i);return a}
 function form(){var h='<div class="prog"><i style="width:'+(done?100:page/6*100)+'%"></i></div>';
-if(done)return h+'<div class="card"><h1>Thank you!</h1><p class="mute">Your response has been recorded ('+src()+'). It now appears in the graphs.</p><div class="acts"><button class="btn p" onclick="setView(\'dash\')">View graphs</button><button class="btn" onclick="again()">Submit another response</button></div></div>';
+if(done)return h+'<div class="card"><h1>Thank you!</h1><p class="mute">Your response has been recorded.</p><div class="acts"><button class="btn" onclick="again()">Submit another response</button></div></div>';
 h+='<div class="mute" style="margin-bottom:8px">Section '+(page+1)+' of 6'+(page==0?" · About you":"")+'</div>';
 if(page==0)DEM.forEach(function(d){h+=card(d[0],d[1],d[2],"D")});
 else for(var i=(page-1)*5;i<page*5;i++){var q=Q[i];h+=card("q"+i,q[0],SC[q[1]],q[1],i+1);}
@@ -83,27 +75,7 @@ async function submit(){var r={ts:Date.now()};DEM.forEach(function(d){r[d[0]]=d[
 var ok=false;if(DB){try{await DB.collection("responses").add(r);ok=true}catch(e){}}
 if(!ok){local.push(r);ls("aipo_resp",local)}done=true;render()}
 document.addEventListener("click",function(e){var b=e.target.closest("[data-k]");if(!b)return;var k=b.dataset.k;A[k]=+b.dataset.v;var c=document.getElementById("c_"+k);c.classList.remove("err");c.querySelectorAll("[data-k]").forEach(function(x){x.classList.toggle("on",x===b)})});
-function dash(){var D=data(),q=Q[qi],t=q[1],opts=SC[t],n=D.length;
-var h='<div class="card"><span class="chip">'+src()+'</span><div class="stat">'+n+' <span class="mute" style="font:14px system-ui">responses</span></div>';
-h+='<label class="mute">Question</label><select onchange="qi=+this.value;render()">'+Q.map(function(x,i){return'<option value="'+i+'"'+(i==qi?" selected":"")+'>'+(i+1)+". "+x[0]+"</option>"}).join("")+'</select>';
-h+='<label class="mute">Compare by</label><select onchange="gb=this.value;render()"><option value="all"'+(gb=="all"?" selected":"")+'>All respondents</option>'+DEM.map(function(d){return'<option value="'+d[0]+'"'+(gb==d[0]?" selected":"")+'>'+d[1]+"</option>"}).join("")+'</select>';
-h+='<div class="acts"><button class="btn" onclick="toggleDemo()">'+(demo?"Hide demo data":"Preview with demo data")+'</button><button class="btn" onclick="csv()">Download CSV</button></div></div>';
-var G=gb=="all"?[["All respondents",D]]:DEM.filter(function(d){return d[0]==gb})[0][2].map(function(g){return[g,D.filter(function(r){return r[gb]==g})]});
-var rows=G.map(function(g){var c=opts.map(function(){return 0});g[1].forEach(function(r){var v=+r.a.split(",")[qi];if(!isNaN(v))c[v]++});return[g[0],c,g[1].length]});
-var mx=Math.max.apply(null,[1].concat(rows.map(function(r){return Math.max.apply(null,r[1].map(function(v){return r[2]?v/r[2]*100:0}))})));
-h+='<div class="card"><div class="qt">'+(qi+1)+". "+q[0]+'</div><div class="mute">Share of each group giving each answer (only answers chosen are shown).</div>';
-if(!n)h+='<p class="mute">No responses yet. Fill in the questionnaire or preview with demo data.</p>';
-rows.forEach(function(r){h+='<div class="grp"><h4>'+r[0]+' <span class="mute">(n = '+r[2]+')</span></h4>';
-if(!r[2])h+='<div class="mute">No responses</div>';else{var top=r[1].indexOf(Math.max.apply(null,r[1]));
-opts.forEach(function(o,i){if(!r[1][i])return;var p=r[1][i]/r[2]*100;h+='<div class="row"><span>'+o+'</span><div class="tr"><div class="fl" style="width:'+(p/mx*100)+'%;background:'+col(t,i)+'">'+p.toFixed(1)+"%</div></div></div>"});
-h+='<div class="mute" style="margin-top:6px">Most common: <span class="hl">'+opts[top]+" ("+(r[1][top]/r[2]*100).toFixed(1)+"%)</span></div>"}h+="</div>"});
-return h+"</div>"}
-function toggleDemo(){demo=!demo;render()}
-function csv(){var D=data(),L=["ts"].concat(DEM.map(function(d){return d[0]}),Q.map(function(q,i){return"Q"+(i+1)}));
-var out=[L.join(",")];D.forEach(function(r){var a=r.a.split(",");out.push([r.ts||""].concat(DEM.map(function(d){return'"'+r[d[0]]+'"'}),Q.map(function(q,i){return'"'+SC[q[1]][+a[i]]+'"'})).join(","))});
-var s=out.join("\n");(async function(){try{var d=window.claude&&await claude.use("downloads");if(d){await d.save({filename:"responses.csv",data:s});return}}catch(e){}
-var u=URL.createObjectURL(new Blob([s],{type:"text/csv"})),a=document.createElement("a");a.href=u;a.download="responses.csv";a.click()})()}
-function render(){document.getElementById("cnt").textContent="("+data().length+")";document.getElementById("app").innerHTML=view=="form"?form():dash()}
-(async function(){try{var c=window.claude&&await claude.use("db");if(c){DB=c;c.collection("responses").onSnapshot(function(s){shared=s.docs.map(function(d){return d.data()});if(view=="dash")render();else document.getElementById("cnt").textContent="("+data().length+")"},function(){})}}catch(e){}})();
+function render(){document.getElementById("app").innerHTML=form()}
+(async function(){try{var c=window.claude&&await claude.use("db");if(c){DB=c;c.collection("responses").onSnapshot(function(){},function(){})}}catch(e){}})();
 render();
 </script></body></html>
